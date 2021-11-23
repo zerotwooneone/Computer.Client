@@ -1,0 +1,5 @@
+<div class="container">
+    <div class="item" *ngFor="let item of items; index as i; trackBy: trackByFn">
+        <cui-to-do-item [item]="item"></cui-to-do-item>
+    </div>
+</div>

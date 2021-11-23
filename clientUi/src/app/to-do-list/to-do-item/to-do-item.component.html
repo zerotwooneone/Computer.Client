@@ -1,0 +1,15 @@
+<input type="checkbox" [checked]="checked" />
+<span *ngIf="!url">
+    <span *ngIf="text">
+        <input type="text" [value]="text" *ngIf="!readonly" />
+        <span *ngIf="readonly">{{text}}</span>
+    </span>
+    <span *ngIf="!text && imageUrl">
+        <input type="url" [value]="imageUrl" *ngIf="!readonly" />
+        <img *ngIf="readonly" [src]="imageUrl" />
+    </span>
+</span>
+<span *ngIf="url">
+    <input type="url" [value]="url" *ngIf="!readonly" />
+    <a *ngIf="readonly" [href]="url">{{url}}</a>
+</span>
