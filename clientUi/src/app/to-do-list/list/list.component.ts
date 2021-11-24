@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ListService } from '../list.service';
 import { ItemModel } from '../to-do-item/item-model';
 
 @Component({
@@ -16,7 +17,7 @@ export class ListComponent implements OnInit {
   }
 
   public readonly items: ItemModel[] = this.InitList();
-  constructor() { }
+  constructor(private readonly listService: ListService) { }
 
   ngOnInit(): void {
   }
