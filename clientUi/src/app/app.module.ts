@@ -8,6 +8,7 @@ import { environment } from '../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToDoListModule } from './to-do-list/to-do-list.module';
 import { AppInitService, initializeFactory } from './app-init.service';
+import { BusModule } from './bus/bus.module';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { AppInitService, initializeFactory } from './app-init.service';
     }),
     BrowserAnimationsModule,
     ToDoListModule,
+    BusModule,
   ],
   providers: [
     {
