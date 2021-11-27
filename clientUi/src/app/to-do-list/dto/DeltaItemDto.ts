@@ -1,8 +1,10 @@
 
 export class DeltaItemDto {
   constructor(
+    public readonly index: number,
     public readonly checked: boolean = false,
-    public readonly text: string | null = null,
-    public readonly link: string | null = null,
-    public readonly imageUrl: string | null = null) { }
+    public readonly text: string | undefined = undefined,
+    public readonly link: string | undefined = undefined,
+    public readonly imageUrl: string | undefined = undefined,
+    public readonly deleted: boolean = false,) { }
 }

@@ -2,7 +2,7 @@
 export class ListItemDto {
   constructor(
     public readonly checked: boolean,
-    public readonly text: string | null = null,
-    public readonly link: string | null = null,
-    public readonly imageUrl: string | null = null) { }
+    public readonly text: string | undefined = undefined,
+    public readonly link: string | undefined = undefined,
+    public readonly imageUrl: string | undefined = undefined) { }
 }

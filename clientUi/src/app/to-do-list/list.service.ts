@@ -23,16 +23,12 @@ export class ListService {
         "first text"),
       new ListItemDto(
         true,
-        null,
+        undefined,
         "https://www.google.com"),
       new ListItemDto(
         true,
-        null,
-        "https://www.google.com"),
-      new ListItemDto(
-        true,
-        null,
-        null,
+        undefined,
+        undefined,
         "https://thumbs.gfycat.com/CalmCooperativeKudu-size_restricted.gif"),
     ]);
     return ListUpdate.listfactory("001", list);
