@@ -12,15 +12,6 @@ import { ItemModel } from '../to-do-item/item-model';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit, OnDestroy {
-  // InitList(): ItemModel[] {
-  //   return [
-  //     new ItemModel("1", true, "first"),
-  //     new ItemModel("2", false, "something"),
-  //     new ItemModel("3", false, undefined, "https://www.google.com"),
-  //     new ItemModel("3", false, undefined, undefined, "https://thumbs.gfycat.com/CalmCooperativeKudu-size_restricted.gif"),];
-  // }
-
-  //public readonly items: ItemModel[] = this.InitList();
   public readonly items$: BehaviorSubject<ItemModel[]> = new BehaviorSubject([] as ItemModel[]);
   private readonly subscriptions: Subscription[] = [];
   constructor(private readonly listService: ListService) { }
@@ -48,7 +39,7 @@ export class ListComponent implements OnInit, OnDestroy {
     if (a.delta) {
       const current = this.items$.value;
       //reverse to handle deletions
-      a.delta.items.reverse().forEach((element, index) => {
+      a.delta.items.sort(a => a.index).reverse().forEach((element, index) => {
         if (element.deleted) {
           delete current[element.index];
           return;

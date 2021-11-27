@@ -1,18 +1,40 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { delay, finalize, from, Observable, timer } from 'rxjs';
 import { BusService } from '../bus/bus.service';
+import { DeltaItemDto } from './dto/DeltaItemDto';
+import { ListDelta } from './dto/ListDelta';
 import { ListDto } from './dto/ListDto';
 import { ListItemDto } from './dto/ListItemDto';
 import { ListUpdate } from './dto/ListUpdate';
 
 @Injectable()
 export class ListService {
-  private readonly updateSubject: BehaviorSubject<ListUpdate> = new BehaviorSubject(ListService.createDefaultList());
-
-  constructor(bus: BusService) { }
+  constructor(private readonly bus: BusService) { }
 
   public getList(id: string): Observable<ListUpdate> {
-    return this.updateSubject.asObservable();
+    const subjectId = `listchanged.${id}`;
+    const result = this.bus.subscribe<ListUpdate>(subjectId);
+
+    from([1]).pipe(
+      delay(100),
+      finalize(() => {
+        const newList = ListService.createDefaultList();
+        this.bus.publish(subjectId, newList);
+      })
+    ).subscribe();
+    var updateItem = timer(150, 1000)
+      .subscribe(i => {
+        const delta = ListUpdate.deltaFactory("002", new ListDelta(
+          "first id",
+          [new DeltaItemDto(
+            3,
+            true,
+            `${new Date()}`)]
+        ));
+        this.bus.publish(subjectId, delta);
+      });
+
+    return result;
   }
 
   //todo: this is a placeholder till we get a list from a source
@@ -26,7 +48,7 @@ export class ListService {
         undefined,
         "https://www.google.com"),
       new ListItemDto(
-        true,
+        false,
         undefined,
         undefined,
         "https://thumbs.gfycat.com/CalmCooperativeKudu-size_restricted.gif"),
