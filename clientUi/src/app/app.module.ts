@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -7,6 +7,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToDoListModule } from './to-do-list/to-do-list.module';
+import { AppInitService, initializeFactory } from './app-init.service';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,14 @@ import { ToDoListModule } from './to-do-list/to-do-list.module';
     BrowserAnimationsModule,
     ToDoListModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeFactory,
+      multi: true,
+      deps: [AppInitService]
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
