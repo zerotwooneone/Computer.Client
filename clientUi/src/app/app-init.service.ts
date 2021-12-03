@@ -26,7 +26,7 @@ export class AppInitService {
       })
     ).subscribe();
 
-    this.hostConnection.connect();
+    await this.hostConnection.connect();
   }
 
   constructor(

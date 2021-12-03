@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
+import { HostConnectionService } from 'src/app/bus/host-connection.service';
 import { DeltaItemDto } from '../dto/DeltaItemDto';
 import { ListItemDto } from '../dto/ListItemDto';
 import { ListUpdate } from '../dto/ListUpdate';
@@ -14,7 +15,9 @@ import { ItemModel } from '../to-do-item/item-model';
 export class ListComponent implements OnInit, OnDestroy {
   public readonly items$: BehaviorSubject<ItemModel[]> = new BehaviorSubject([] as ItemModel[]);
   private readonly subscriptions: Subscription[] = [];
-  constructor(private readonly listService: ListService) { }
+  constructor(
+    private readonly listService: ListService,
+    private readonly hostConnection: HostConnectionService) { }
   ngOnDestroy(): void {
     if (this.subscriptions && this.subscriptions.length) {
       this.subscriptions.forEach(element => {
@@ -27,13 +30,13 @@ export class ListComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.subscriptions.push(this.listService.getList("dummy list id")
       .subscribe(a => {
         const x = this.convert(a);
         this.items$.next(x);
       }));
-
+    const conn = await this.hostConnection.getAppConnection();
   }
   convert(a: ListUpdate): ItemModel[] {
     if (a.delta) {
