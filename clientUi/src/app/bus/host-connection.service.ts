@@ -34,12 +34,29 @@ export class HostConnectionService {
     await p;
   }
 
-  public async getAppConnection(): Promise<AppConnectionDetails | void> {
+  public async getAppConnection(appId: string): Promise<AppConnection | void> {
     if (!this.hubConnection) {
       return;
     }
-    var details = (await this.hubConnection.invoke("GetConnection", Guid.newGuid())) as AppConnectionDetails;
-    console.log(details);
+    const instanceId = Guid.newGuid();
+    var details = (await this.hubConnection.invoke("GetConnection", appId, instanceId)) as { readonly instanceId: string | undefined };
+    if (!details?.instanceId) {
+      return;
+    }
+    //ideally, we would register (on) before we connect, but we want to use the server provided instance id
+    this.hubConnection.on(`ToAppUi:${appId}.${details.instanceId}`, (args: any[]) => {
+      console.log("Got ToAppUi")
+      console.log("ToAppUi", args);
+    })
+    return new AppConnection(
+      details.instanceId,
+      async () => {
+        if (!this.hubConnection) {
+          return;
+        }
+        await this.hubConnection.invoke("CloseConnection", appId, instanceId);
+      },
+    )
   }
 }
 
@@ -53,6 +70,12 @@ export class Guid {
   }
 }
 
-type AppConnectionDetails = {
-  readonly InstanceId: string | undefined;
+export class AppConnection {
+  public constructor(
+    public readonly instanceId: string | undefined,
+    private readonly closeConnection: () => Promise<void>,) { }
+
+  public async Dispose(): Promise<void> {
+    await this.closeConnection();
+  }
 }
