@@ -1,13 +1,16 @@
 import { Injectable } from '@angular/core';
 import { ConfigService } from '../config/config.service';
 import * as signalR from "@microsoft/signalr";
+import { EventForFrontEnd, HubRouterService } from './hub-router.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HostConnectionService {
   private hubConnection: signalR.HubConnection | undefined;
-  constructor(private readonly configService: ConfigService) { }
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly hubRouter: HubRouterService) { }
 
   public async connect(): Promise<void> {
     const p = new Promise((resolve, reject) => {
@@ -23,6 +26,9 @@ export class HostConnectionService {
           .start()
           .then(() => {
             console.info('signalR Connection started');
+            this.hubConnection?.on("EventToFrontEnd", (eventForFrontEnd: EventForFrontEnd) => {
+              this.hubRouter.handleEventFromBackend(eventForFrontEnd);
+            })
             resolve(undefined);
           })
           .catch(err => {
