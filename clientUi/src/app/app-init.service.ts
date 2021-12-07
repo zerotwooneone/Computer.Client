@@ -22,7 +22,7 @@ export class AppInitService {
       takeUntil(timer(1000)),
       first(),
       catchError((err, caught) => {
-        console.error("Didn't get initial config for some reason.");
+        console.error(`Didn't get initial config for some reason. ${err}`);
         return EMPTY;
       })
     ).subscribe();
