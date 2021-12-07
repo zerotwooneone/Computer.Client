@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { catchError, EMPTY, first, take, takeUntil, timer } from 'rxjs';
 import { HostConnectionService } from './bus/host-connection.service';
+import { HubRouterService } from './bus/hub-router.service';
 import { ConfigModel } from './config/config-model';
 import { ConfigService } from './config/config.service';
 
@@ -26,12 +27,15 @@ export class AppInitService {
       })
     ).subscribe();
 
+    await this.hubRouter.restartListening();
+
     await this.hostConnection.connect();
   }
 
   constructor(
     private readonly configService: ConfigService,
     private readonly hostConnection: HostConnectionService,
+    private readonly hubRouter: HubRouterService,
   ) { }
 }
 

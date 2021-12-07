@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { delay, finalize, from, Observable, timer } from 'rxjs';
 import { BusService } from '../bus/bus.service';
-import { HostConnectionService } from '../bus/host-connection.service';
+import { AppService } from '../computerApp/app.service';
+import { AppConnection } from '../computerApp/AppConnection';
 import { DeltaItemDto } from './dto/DeltaItemDto';
 import { ListDelta } from './dto/ListDelta';
 import { ListDto } from './dto/ListDto';
@@ -13,7 +14,7 @@ export class ListService {
   //const conn = await this.hostConnection.getAppConnection();
   constructor(
     private readonly bus: BusService,
-    private readonly hostConnection: HostConnectionService) { }
+    private readonly appService: AppService) { }
 
   public getList(id: string): Observable<ListUpdate> {
     const subjectId = `listchanged.${id}`;
@@ -60,8 +61,8 @@ export class ListService {
     return ListUpdate.listfactory("001", list);
   }
 
-  public async connectApp(): Promise<void> {
-    const appConnection = await this.hostConnection.getAppConnection("ToDoList");
+  public async connectApp(): Promise<AppConnection | undefined> {
+    return await this.appService.getAppConnection("ToDoList");
   }
 }
 
