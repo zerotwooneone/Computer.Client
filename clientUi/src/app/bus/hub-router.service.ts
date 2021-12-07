@@ -10,21 +10,26 @@ import { HostConnectionService } from './host-connection.service';
 })
 export class HubRouterService {
   private subscriptions: Subscription[] = [];
-  private eventsForFrontend: eventHash = {};
+  private fromBackEndToUi: eventHash = {};
   constructor(
     private readonly bus: BusService,
-    hostEvent: HostEventService,
+    private readonly hostEvent: HostEventService,
     private readonly hostConnection: HostConnectionService) {
-    hostEvent.event$.subscribe(e => this.handleEventFromBackend(e));
   }
 
   public restartListening(): Promise<undefined> {
-    this.eventsForFrontend = AppEvents.FromUiToBackend.reduce((previous, current, index) => {
+    this.stopListening();
+
+    this.subscriptions.push(
+      this.hostEvent.event$.subscribe(e => this.handleEventFromBackend(e))
+    );
+    console.log("HubRouterService subscribed");
+    this.fromBackEndToUi = AppEvents.FromBackendToUi.reduce((previous, current, index) => {
       previous[current] = true;
       return previous;
     }, {} as eventHash)
-    this.stopListening();
-    if (AppEvents && AppEvents.FromBackendToUi.length) {
+
+    if (AppEvents && AppEvents.FromUiToBackend.length) {
       AppEvents.FromUiToBackend.forEach(subject => {
         this.subscriptions.push(
           this.bus.subscribeToEvent(subject)
@@ -38,7 +43,7 @@ export class HubRouterService {
   }
 
   public stopListening(): void {
-    this.eventsForFrontend = {};
+    this.fromBackEndToUi = {};
     if (!this.subscriptions) {
       return;
     }
@@ -49,7 +54,7 @@ export class HubRouterService {
     if (!eventForFrontEnd || !eventForFrontEnd.subject) {
       return;
     }
-    if (this.eventsForFrontend[eventForFrontEnd.subject]) {
+    if (this.fromBackEndToUi[eventForFrontEnd.subject]) {
       this.bus.publish(eventForFrontEnd.subject, eventForFrontEnd.eventObj, eventForFrontEnd.eventId, eventForFrontEnd.correlationId);
     }
   }

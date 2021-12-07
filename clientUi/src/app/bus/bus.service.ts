@@ -41,7 +41,7 @@ export class BusService {
     correlationId?: string): Observable<RequestResponse<TResponse> | RequestResponseFailure> {
     const event = new BusEvent(requestSubject, value, eventId, correlationId);
     const response$ = this.subscribeToEvent(responseSubject).pipe(
-      filter(e => e.correlationId === correlationId),
+      filter(e => e.correlationId === event.correlationId),
       take(1),
       map(a => {
         return {

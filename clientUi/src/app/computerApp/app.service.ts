@@ -53,9 +53,7 @@ type AppConnectionResponse = {
 export class events {
   public static readonly FromUiToBackend: string[] = [
     "GetConnection",
-    "GetConnectionResponse",
     "CloseConnection",
-    "CloseConnectionResponse",
   ];
   public static readonly FromBackendToUi: string[] = [
     "GetConnectionResponse",
