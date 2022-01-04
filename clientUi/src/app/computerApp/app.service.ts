@@ -17,7 +17,8 @@ export class AppService {
       instanceId: instanceId,
       appId: appId,
     } as AppConnectionRequest;
-    const response = await firstValueFrom(this.bus.request<AppConnectionRequest, AppConnectionResponse>("GetConnection", "GetConnectionResponse", request));
+    const requestTimeout = 10000;
+    const response = await firstValueFrom(this.bus.request<AppConnectionRequest, AppConnectionResponse>("GetConnection", "GetConnectionResponse", request, requestTimeout));
     if (!response || !response.success || !response.data) {
       console.error("response failed", response);
       return;
