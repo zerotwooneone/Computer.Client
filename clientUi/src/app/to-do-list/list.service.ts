@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { delay, finalize, from, Observable, timer } from 'rxjs';
+import { BehaviorSubject, delay, finalize, from, Observable, timer } from 'rxjs';
 import { BusService } from '../bus/bus.service';
+import { ListModel } from '../startup/ListModel';
+import { Events } from './bus/events';
 import { DeltaItemDto } from './dto/DeltaItemDto';
 import { ListDelta } from './dto/ListDelta';
 import { ListDto } from './dto/ListDto';
@@ -10,10 +11,26 @@ import { ListUpdate } from './dto/ListUpdate';
 
 @Injectable()
 export class ListService {
-  //const conn = await this.hostConnection.getAppConnection();
+  private readonly _defaultModel$ = new BehaviorSubject<ListModel>({
+    id: "default",
+    items: []
+  });
+  public get defaultModel$(): Observable<ListModel> {
+    return this._defaultModel$.asObservable();
+  }
+  public get defaultModel(): ListModel {
+    return this._defaultModel$.value;
+  }
   constructor(
-    private readonly bus: BusService,
-    private readonly httpClient: HttpClient) { }
+    private readonly bus: BusService) { }
+
+  public async startListening(): Promise<undefined> {
+    this.bus.subscribe<ListModel>(Events.NewDefaultList).subscribe(this.OnDefaultModel.bind(this));
+    return;
+  }
+  OnDefaultModel(listModel: ListModel) {
+    this._defaultModel$.next(listModel)
+  }
 
   public getList(id: string): Observable<ListUpdate> {
     const subjectId = `listchanged.${id}`;

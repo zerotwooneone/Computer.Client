@@ -11,7 +11,7 @@ import { ItemModel } from '../to-do-item/item-model';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit, OnDestroy {
-  @Input() listModel?: ListModel;
+  @Input() defaultList?: ListModel | null;
   public readonly items$: BehaviorSubject<ItemModel[]> = new BehaviorSubject([] as ItemModel[]);
   private readonly subscriptions: Subscription[] = [];
   constructor(
@@ -29,8 +29,8 @@ export class ListComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    if (this.listModel) {
-      this.items$.next(this.convert(this.listModel))
+    if (this.defaultList) {
+      this.items$.next(this.convert(this.defaultList))
     }
   }
   convert(a: ListModel): ItemModel[] {

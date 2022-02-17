@@ -5,6 +5,7 @@ import { HubRouterService } from './bus/hub-router.service';
 import { ConfigModel } from './config/config-model';
 import { ConfigService } from './config/config.service';
 import { StartupService } from './startup/startup.service';
+import { StartupService as ToDoListStartup } from './to-do-list/startup.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class AppInitService {
     private readonly hostConnection: HostConnectionService,
     private readonly hubRouter: HubRouterService,
     private readonly startupService: StartupService,
+    private readonly toDoListStartup: ToDoListStartup,
   ) { }
 
   async OnAppStart(): Promise<any> {
@@ -39,7 +41,9 @@ export class AppInitService {
 
     await this.hostConnection.connect();
 
-    console.warn(await this.startupService.getStartup("some dummy user id"));
+    const startup = await this.startupService.getStartup("some dummy user id");
+    console.warn(startup);
+    await this.toDoListStartup.OnStartup(startup.default);
   }
 }
 
