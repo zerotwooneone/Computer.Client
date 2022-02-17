@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { filter, map, Observable, of, shareReplay, Subject, take, timeout } from 'rxjs';
+import { filter, finalize, map, Observable, of, publish, share, shareReplay, Subject, take, timeout } from 'rxjs';
 import { BusEvent } from './BusEvent';
 
 @Injectable()
 export class BusService {
-  private readonly _bus = new Subject<BusEvent>();
+  private readonly _subscriptions: { [subject: string]: Subject<BusEvent> } = {};
 
   constructor() { }
 
@@ -14,11 +14,11 @@ export class BusService {
     eventId?: string,
     correlationId?: string): void {
     const e: BusEvent = new BusEvent(subject, value, eventId, correlationId);
-    this.innerPublish(e);
+    this.innerPublish(subject, e);
   }
 
-  private innerPublish(e: BusEvent): void {
-    this._bus.next(e);
+  private innerPublish(subject: string, e: BusEvent): void {
+    this._subscriptions[subject]?.next(e);
   }
 
   public subscribe<T>(subject: string): Observable<T> {
@@ -27,9 +27,20 @@ export class BusService {
       map(e => e.value as T));
   }
 
-  public subscribeToEvent(event: string): Observable<BusEvent> {
-    return this._bus.pipe(
-      filter(e => e.subject === event));
+  public subscribeToEvent(subject: string): Observable<BusEvent> {
+    const createNew = (): Subject<BusEvent> => {
+      const newSubject = new Subject<BusEvent>();
+      const observable = newSubject.pipe(
+        share(),
+        finalize(() => {
+          delete this._subscriptions[subject]; //todo: this may not work at all
+        })
+      );
+      this._subscriptions[subject] = newSubject;
+      return newSubject;
+    };
+    const result = this._subscriptions[subject] ?? createNew();
+    return result.asObservable();
   }
 
   public request<TRequest, TResponse>(
@@ -62,7 +73,7 @@ export class BusService {
       })
     );
 
-    this.innerPublish(event);
+    this.innerPublish(requestSubject, event);
 
     return response$;
   }
