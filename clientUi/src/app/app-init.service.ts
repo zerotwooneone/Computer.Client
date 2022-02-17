@@ -1,14 +1,22 @@
 import { Injectable } from '@angular/core';
-import { catchError, EMPTY, first, take, takeUntil, timer } from 'rxjs';
+import { catchError, EMPTY, first, takeUntil, timer } from 'rxjs';
 import { HostConnectionService } from './bus/host-connection.service';
 import { HubRouterService } from './bus/hub-router.service';
 import { ConfigModel } from './config/config-model';
 import { ConfigService } from './config/config.service';
+import { StartupService } from './startup/startup.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppInitService {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly hostConnection: HostConnectionService,
+    private readonly hubRouter: HubRouterService,
+    private readonly startupService: StartupService,
+  ) { }
+
   async OnAppStart(): Promise<any> {
     //any delay in the resolution of this promise will delay the start of the app
     console.info('app started');
@@ -30,13 +38,9 @@ export class AppInitService {
     await this.hubRouter.restartListening();
 
     await this.hostConnection.connect();
-  }
 
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly hostConnection: HostConnectionService,
-    private readonly hubRouter: HubRouterService,
-  ) { }
+    console.warn(await this.startupService.getStartup("some dummy user id"));
+  }
 }
 
 export function initializeFactory(service: AppInitService): () => Promise<any> {

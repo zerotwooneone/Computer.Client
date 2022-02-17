@@ -1,8 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { DeltaItemDto } from '../dto/DeltaItemDto';
-import { ListItemDto } from '../dto/ListItemDto';
-import { ListUpdate } from '../dto/ListUpdate';
+import { ItemModelDto } from 'src/app/startup/ItemModelDto';
+import { ListModel } from 'src/app/startup/ListModel';
 import { ListService } from '../list.service';
 import { ItemModel } from '../to-do-item/item-model';
 
@@ -12,7 +11,7 @@ import { ItemModel } from '../to-do-item/item-model';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit, OnDestroy {
-  @Input() loadDefaultForUser?: string;
+  @Input() listModel?: ListModel;
   public readonly items$: BehaviorSubject<ItemModel[]> = new BehaviorSubject([] as ItemModel[]);
   private readonly subscriptions: Subscription[] = [];
   constructor(
@@ -30,40 +29,16 @@ export class ListComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.subscriptions.push(this.listService.getList("dummy list id")
-      .subscribe(a => {
-        const x = this.convert(a);
-        this.items$.next(x);
-      }));
-    if (this.loadDefaultForUser && this.loadDefaultForUser.length) {
-      console.warn(await this.listService.getDefaultList(this.loadDefaultForUser));
+    if (this.listModel) {
+      this.items$.next(this.convert(this.listModel))
     }
   }
-  convert(a: ListUpdate): ItemModel[] {
-    if (a.delta) {
-      const current = this.items$.value;
-      //reverse to handle deletions
-      a.delta.items.sort(a => a.index).reverse().forEach((element, index) => {
-        if (element.deleted) {
-          delete current[element.index];
-          return;
-        }
-        current[element.index] = this.convertDeltaItem(element, index);
-      });
-      return current;
-    }
-    if (!a.list) {
-      //this should never happen
-      return this.items$.value;
-    }
-    const next = a.list.items.map((a, i) => this.convertItem(a, i));
+  convert(a: ListModel): ItemModel[] {
+    const next = a.items.map((a, i) => this.convertItem(a, i));
     return next;
   }
-  private convertItem(a: ListItemDto, index: number): ItemModel {
-    return new ItemModel(String(index), a.checked, a.text, a.link, a.imageUrl);
-  }
-  private convertDeltaItem(element: DeltaItemDto, index: number): ItemModel {
-    return new ItemModel(String(index), element.checked, element.text, element.link, element.imageUrl)
+  private convertItem(a: ItemModelDto, index: number): ItemModel {
+    return new ItemModel(String(index), a.checked, a.text, a.url, a.imageUrl);
   }
 
   public trackByFn(index: number, item: ItemModel) {

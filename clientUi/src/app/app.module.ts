@@ -9,6 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToDoListModule } from './to-do-list/to-do-list.module';
 import { AppInitService, initializeFactory } from './app-init.service';
 import { BusModule } from './bus/bus.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { BusModule } from './bus/bus.module';
     BrowserAnimationsModule,
     ToDoListModule,
     BusModule,
+    HttpClientModule,
   ],
   providers: [
     {
