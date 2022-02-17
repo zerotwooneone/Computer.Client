@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ToDoItemComponent } from './to-do-item/to-do-item.component';
 import { ListComponent } from './list/list.component';
 import { ListService } from './list.service';
-
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -12,13 +12,14 @@ import { ListService } from './list.service';
     ListComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    HttpClientModule
   ],
   exports: [
     ListComponent,
   ],
   providers: [
-    ListService,
+    ListService,    
   ]
 })
 export class ToDoListModule { }
