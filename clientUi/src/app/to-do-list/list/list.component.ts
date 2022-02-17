@@ -1,6 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { AppConnection } from 'src/app/computerApp/AppConnection';
 import { DeltaItemDto } from '../dto/DeltaItemDto';
 import { ListItemDto } from '../dto/ListItemDto';
 import { ListUpdate } from '../dto/ListUpdate';
@@ -13,9 +12,9 @@ import { ItemModel } from '../to-do-item/item-model';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit, OnDestroy {
+  @Input() loadDefaultForUser?: string;
   public readonly items$: BehaviorSubject<ItemModel[]> = new BehaviorSubject([] as ItemModel[]);
   private readonly subscriptions: Subscription[] = [];
-  private appConnection?: AppConnection;
   constructor(
     private readonly listService: ListService) { }
   ngOnDestroy(): void {
@@ -28,9 +27,6 @@ export class ListComponent implements OnInit, OnDestroy {
         }
       });
     }
-    if (this.appConnection) {
-      this.appConnection.Dispose();
-    }
   }
 
   async ngOnInit(): Promise<void> {
@@ -39,7 +35,9 @@ export class ListComponent implements OnInit, OnDestroy {
         const x = this.convert(a);
         this.items$.next(x);
       }));
-    this.appConnection = await this.listService.connectApp();
+    if (this.loadDefaultForUser && this.loadDefaultForUser.length) {
+      console.warn(await this.listService.getDefaultList(this.loadDefaultForUser));
+    }
   }
   convert(a: ListUpdate): ItemModel[] {
     if (a.delta) {

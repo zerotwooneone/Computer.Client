@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { catchError, delay, finalize, firstValueFrom, from, Observable, throwError, timer } from 'rxjs';
 import { BusService } from '../bus/bus.service';
-import { AppService } from '../computerApp/app.service';
-import { AppConnection } from '../computerApp/AppConnection';
 import { DeltaItemDto } from './dto/DeltaItemDto';
 import { ListDelta } from './dto/ListDelta';
 import { ListDto } from './dto/ListDto';
@@ -16,7 +14,6 @@ export class ListService {
   //const conn = await this.hostConnection.getAppConnection();
   constructor(
     private readonly bus: BusService,
-    private readonly appService: AppService,
     private readonly httpClient: HttpClient) { }
 
   public getList(id: string): Observable<ListUpdate> {
@@ -62,11 +59,6 @@ export class ListService {
         "https://thumbs.gfycat.com/CalmCooperativeKudu-size_restricted.gif"),
     ]);
     return ListUpdate.listfactory("001", list);
-  }
-
-  public async connectApp(): Promise<AppConnection | undefined> {
-    console.warn(await this.getDefaultList("some client user id"));
-    return await this.appService.getAppConnection("ToDoList");
   }
 
   public async getDefaultList(userId: string): Promise<StartupModel> {
