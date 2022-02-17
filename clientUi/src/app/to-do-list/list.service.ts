@@ -65,11 +65,11 @@ export class ListService {
   }
 
   public async connectApp(): Promise<AppConnection | undefined> {
-    console.warn(await this.getDefaultList());
+    console.warn(await this.getDefaultList("some client user id"));
     return await this.appService.getAppConnection("ToDoList");
   }
 
-  public async getDefaultList(): Promise<StartupModel> {
+  public async getDefaultList(userId: string): Promise<StartupModel> {
     const httpOptions = {
       headers: new HttpHeaders({
         'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export class ListService {
     }
     return await firstValueFrom(this.httpClient.post<StartupModel>("https://localhost:7139/startup",
       {
-        "this thing": "client post"
+        userId: userId,
       },
       httpOptions).pipe(
         catchError((err, obs) => this.handleError(err)),
